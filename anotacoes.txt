@@ -1,0 +1,13 @@
+docker run -p 3000:3000 --link mongodb:mongodb -e MONGO_URL=mongodb api-herois
+
+docker run -d --name mongodb mongo:3.5
+
+kubectl run mongodb --image=mongo:3.5 --port=27017
+
+kubectl run treinamento --image=drprado2/api-heros 
+
+
+// COMANDO CRIAR SECRET PARA PULL EM DOCKER REGISTRY PRIVATE
+// LINK de referencia https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+// Esse docker-server usado é o docker-hub para private images
+kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=<user> --docker-password=<pass> --docker-email=<email>

@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: ReplicaSet
+metadata:
+  name:  treinamento-rs
+  labels:
+    app: treinamento
+    tipo: replicaset
+spec:
+  replicas: 2
+  selector: 
+    matchLabels:
+      app: treinamento
+      tipo: replicaset
+  template:
+    metadata:
+      labels:
+        tipo: replicaset
+        app: treinamento
+    spec:
+      containers:
+        - name: treinamento-rs
+          image: drprado2/api-heros:v1
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MONGO_URL
+              value: "10.36.2.6"
+            - name: PORT
+              value: "5000"
+      imagePullSecrets:
+        - name: regcred
