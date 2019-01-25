@@ -1,0 +1,63 @@
+# Essas versões vc consegue pegar na doc oficial, elas variam para o kind v1, apps/v1, extensions/v1beta1
+apiVersion: extensions/v1beta1
+# É o tipo do objeto q vc vai criar, Pod, ReplicaSet, ReplicationController, Service, Deployment, Secret, Namespace, ...
+kind: Deployment
+# São dados usados para entendimento do objeto, pelos dashboards, e as labels que são extremamente importantes
+metadata:
+  # por padrão sempre temos um name
+  name: treinamento-deploy
+  # as labels são usadas pelos filtros, as labels dos pods são extremamente importantes pois fazem o match com services e replica sets
+  labels:
+    app: treinamento
+    version: develop
+# é a especificação do objeto    
+spec:
+  # quantidade de replicas desejadas por nós que o ReplicaSet irá gerenciar
+  replicas: 3
+  # Estratégia do deploy
+  strategy:
+    # estratégia que permite avancar e retornar entre versões, tmb faz o update automatico para imagens latest
+    type: RollingUpdate
+    rollingUpdate:
+      # aqui dizemos quantos pods da nova versão vms permitir subir por vez
+      maxSurge: "25%"
+      # aqui quantos pods da antiga versão deixaremos cair por vez
+      maxUnavailable: "25%"
+  # Esse é o tempo que queremos esperar os novos pods ficarem de pé sem problemas, para garantirmos que o deploy está concluído
+  minReadySeconds: 0
+  # Esse é o número de revisions q o cluster vai manter
+  revisionHistoryLimit: 10 
+  # Número de segundos que devem ser esperados para o deploy reiniciar quando um deploy der errado
+  progressDeadlineSeconds: 3
+  selector:
+    matchLabels:
+      app: treinamento
+      version: develop
+  template:
+    metadata:
+      labels:
+        app: treinamento
+        version: develop
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: node-container
+          image: drprado2/api-heros:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: '0.01'
+              memory: '10Mi'
+            limits:
+              cpu: '1'
+              memory: '1500Mi'
+          env:
+            - name: MONGO_URL
+              value: mongodb-svc
+            - name: "PORT"
+              value: "4000"
+      imagePullSecrets:
+        - name: regcred

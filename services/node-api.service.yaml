@@ -2,10 +2,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: treinamento-service
+  labels:
+    app: treinamento
+    version: develop
 spec:
   ports:
     - port: 8080
       targetPort: 4000
   selector:
     app: treinamento
+    version: develop
   type: LoadBalancer

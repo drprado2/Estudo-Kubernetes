@@ -10,12 +10,12 @@ spec:
   selector: 
     matchLabels:
       app: treinamento
-      tipo: replicaset
+      tipo: "replicaset"
   template:
     metadata:
       labels:
-        tipo: replicaset
         app: treinamento
+        tipo: "replicaset"
     spec:
       containers:
         - name: treinamento-rs
@@ -24,7 +24,7 @@ spec:
             - containerPort: 5000
           env:
             - name: MONGO_URL
-              value: "10.36.2.6"
+              value: "mongodb-svc"
             - name: PORT
               value: "5000"
       imagePullSecrets:
