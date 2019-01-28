@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+# O kind Ingress deve ser usado para construirmos o objeto que contem as regras de roteamento
+kind: Ingress
+metadata:
+  name: ingress-router
+spec:
+  # lista de regras
+  rules:
+  # regra pode ser para http ou https
+  - http: 
+      # paths são as rotas que queremos mapear
+      paths:
+        # a / vai mapear para todas as rotas
+        - path: /
+          # aqui descrevemos para que serviço queremos enviar
+          backend:
+            # note que esse é o name que escolhemos no nosso objeto kind Service
+            serviceName: treinamento-svc
+            servicePort: 4000
+
+  # nesse caso usamos um filtro do tipo host, sendo que poderiamos ter varios domínios/hosts apontando para o mesmo ip, ai controlariamos
+  # os certiticados deles por aqui, e tmb fariamos o redirecionamento
+  - host: mysite.com
+    http: 
+      paths:
+      - path: /
+        backend:
+          serviceName: nginx-svc
+          servicePort: 80
+

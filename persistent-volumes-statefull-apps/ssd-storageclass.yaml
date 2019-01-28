@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+# Esse storageClass se usado no PersistentVolumeClaim irá provisionar discos SSD pelo GKE
+kind: StorageClass
+metadata:
+  name: faster
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+# Caso você retire o comentário da linha abaixo quando o PersistentVolumeClaim for deletado o disco não será deletado
+# reclaimPolicy: Retain
+
+# Assim que o volume estiver provisionado já será feito o bind dele com o PersistentVolume do Cluster
+volumeBindingMode: Immediate
+    

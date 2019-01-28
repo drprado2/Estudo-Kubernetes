@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-sts-svc
+  labels:
+    app: mongodb-sts
+spec:
+  ports:
+  - name: mongo
+    port: 27017
+    targetPort: 27017
+  type: NodePort
+  selector:
+    app: mongodb-sts
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-sts
+spec:
+  selector:
+    matchLabels:
+      app: mongodb-sts
+  serviceName: mongodb-sts
+  updateStrategy:
+    type: RollingUpdate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb-sts
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mongodb-sts-container
+        image: mongo:3.5
+        ports:
+        - containerPort: 27017
+          name: mongo
+        volumeMounts:
+        - name: mongo-volume
+          mountPath: /data/db
+      volumes:
+      - name: mongo-volume
+        persistentVolumeClaim:
+          claimName: mongodb-storage

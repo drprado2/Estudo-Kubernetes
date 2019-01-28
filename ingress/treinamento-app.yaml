@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: treinamento-svc
+  labels:
+    app: treinamento
+    canary: A
+    version: develop
+spec:
+  ports:
+  - name: api
+    port: 4000
+    targetPort: 5000
+    protocol: TCP
+  selector:
+    app: treinamento
+    canary: A
+    version: develop
+  type: NodePort
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: treinamento
+  labels:
+    app: treinamento
+    canary: A
+    version: develop
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  minReadySeconds: 2
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 3
+  selector:
+    matchLabels:
+      app: treinamento
+      canary: A
+      version: develop
+  template:
+    metadata:
+      labels:
+        app: treinamento
+        canary: A
+        version: develop
+    spec:
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: treinamento-container
+        image: drprado2/api-heros:latest
+        imagePullPolicy: Always
+        ports:
+        - name: api
+          containerPort: 5000
+          protocol: TCP
+        env:
+        - name: MONGO_URL
+          value: mongodb-sts-svc
+        - name: PORT
+          value: "5000"
+        resources:
+          requests:
+            cpu: "0.1"
+            memory: "25Mi"
+          limits:
+            cpu: "1"
+            memory: "800Mi"
+
+

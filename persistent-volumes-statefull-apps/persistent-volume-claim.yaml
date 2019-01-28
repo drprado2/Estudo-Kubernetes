@@ -1,0 +1,26 @@
+apiVersion: v1
+# Veja que usando técnologias cloud como, GKE ou AKS (google, Azure) você não precisa criar o PersistentVolume nem o disco
+# Pois criando a Claim esses ambientes já criam para você o PersistentVolume e o Disk
+# ATENÇÃO se você excluir o Claim e tanto o PersistentVolume quando o Disk serão excluídos e você perde os dados
+# ESSE COMPORTAMENTO SITADO ACIMA PODE SER ALTERADO VERIFIQUE O SSD-STORAGECLASS
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-storage
+spec:
+  accessModes:
+    # O volume só pode ser lido e escrito por 1 único pod por vez, outras opções são ReadOnlyMany e ReadWriteMany
+    # Atenção para Deployments o ReadWriteOnce não funcionará, mesmo com 1 réplica só, pois quando o POD vai morrer e 
+    # construir outro, o novo é construído antes de deletar o antigo, e o novo ficará em deadLock pois o disco já estará
+    # em uso pelo 1º POD
+    # Para banco de dados devemos usar o ReadWriteOnce com StatefullServices
+    - ReadWriteOnce
+  # A className é muito importante, através dela é que o GKE ou o AKS decidem qual tipo de disco vão pegar, região etc
+  # a default pega um disco que não é SSD
+  #storageClassName: default
+  # Aqui estamos usando o storageClass que criamos no outro arquivo, ele provisiona discos SSD
+  storageClassName: faster
+  resources:
+    requests:
+      storage: 1Gi
+
+# AGORA QUE POSSUIMOS O DISCO VEJA NO STATUFULLSET COMO USAR, BASICAMENTE MAPEAMOS COMO UM VOLUME NO POD QUE SERÁ MONTANDO NO CONTAINER      
